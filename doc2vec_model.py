@@ -24,6 +24,7 @@ def read_document(data_root=FILE_PATH):
 
 
 def train_save_mode(train_corpus, vector_size, min_count, epochs, model_path):
+    print("训练模型中.....")
     doc2vec_model = gensim.models.doc2vec.Doc2Vec(vector_size=vector_size, min_count=min_count, epochs=epochs, workers=8)
     doc2vec_model.build_vocab(train_corpus)
     doc2vec_model.train(train_corpus, total_examples=doc2vec_model.corpus_count, epochs=doc2vec_model.epochs)
