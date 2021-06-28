@@ -19,6 +19,8 @@ mpl.rcParams['font.sans-serif'] = ['SimHei']
 """
 # 判决书路径
 FILE_PATH = 'E:\项目相关资料\法律文书项目\Judgement\Data.case.txt'
+# 分词文件存储路径
+SEG_FILE_PATH = "./files/seg_files"
 # 构建词典的最小词频
 MIN_FREQ = 5
 # 段落标签
@@ -49,9 +51,10 @@ def word_segment(aim_sentence, options=1, stop_word="./files/stop_word_file/cn_s
     return result
 
 
-def read_judgements(file_path, out_path="./files/seg_files"):
+def read_judgements(file_path, out_path=SEG_FILE_PATH):
     """
     文件读取+分词
+    :param out_path: 分词结果存储文件
     :param file_path: 文件路径
     """
     for dir_name in os.listdir(file_path):
@@ -82,7 +85,7 @@ def read_judgements(file_path, out_path="./files/seg_files"):
                                 seg_file.write(" ".join(line) + "\n")
 
 
-def get_vocab(data_root='./files/seg_files'):
+def get_vocab(data_root=SEG_FILE_PATH):
     """
     :param data_root: 分词文件地址
     :return: 原始数据+词汇表
