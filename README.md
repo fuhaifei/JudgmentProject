@@ -77,11 +77,11 @@
 
 * 准确率基本稳定在0.57-0.60之间，效果一般
 
-  ![image-20210705153135234](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210705153135234.png)
+  ![image-20210705153135234](README.assets/image-20210705153135234.png)
 
 * 在整个数据集上，进行混淆矩阵分析(行为真实标签,列为预测标签)
 
-  <img src="D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210705154925725.png" alt="image-20210705154925725" style="zoom:50%;" />
+  <img src="README.assets\image-20210705154925725.png" alt="image-20210705154925725" style="zoom:50%;" />
 
   1. 左下图可得，label = {1，8， 9 ， 10} 分类效果较好，分类错误数量较少；其余标签分类效果较差
   2. 右下图可得，大量的其他标签段落错误分类为{1， 2， 8， 9}，其中label = 5  证实文件段落分容易分类为label = 9 判决结果段落；label = 6 辩护意见段落分容易分类为 label = 8 证据列举段落；label = 11 法律条文等附录段落分容易分类为 label = 1 标题案号段落
