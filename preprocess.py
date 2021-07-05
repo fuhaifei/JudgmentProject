@@ -21,10 +21,12 @@ mpl.rcParams['font.sans-serif'] = ['SimHei']
 FILE_PATH = 'E:\项目相关资料\法律文书项目\Judgement\Data.case.txt'
 # 分词文件存储路径
 SEG_FILE_PATH = "./files/seg_files"
+# 标准文件地址
+LABEL_FILE_PATH = "./files/label_files"
 # 构建词典的最小词频
 MIN_FREQ = 5
 # 段落标签
-labels = {1: "标题案号", 2: "当事人、辩护人、被害人情况", 3: "案件始末", 4: "指控", 5: "证实文件", 6: "辩护意见", 7: "事实",
+LABELS = {1: "标题案号", 2: "当事人、辩护人、被害人情况", 3: "案件始末", 4: "指控", 5: "证实文件", 6: "辩护意见", 7: "事实",
           8: "证据列举", 9: "判决结果", 10: "尾部", 11: "法律条文等附录"}
 
 
@@ -107,7 +109,30 @@ def get_vocab(data_root=SEG_FILE_PATH):
     return tokenized_data, Vocab.Vocab(counter, min_freq=MIN_FREQ)
 
 
-# read_judgements(FILE_PATH)
+def load_label_data(label_file_path=LABEL_FILE_PATH, seg_file_path=SEG_FILE_PATH):
+    docs = []
+    labels = []
+    # 根据标签文件读取对应的分词文件
+    for file_name in os.listdir(LABEL_FILE_PATH):
+        if os.path.splitext(file_name)[1] == '.txt':
+            doc_sentences = []
+            doc_labels = []
+            with open(os.path.join(label_file_path, file_name), 'r', encoding='utf-8') as labels_file:
+                with open(os.path.join(seg_file_path, "seg_"+file_name), 'r', encoding='utf-8') as doc_file:
+                    sentence_label = labels_file.readline().replace("\n", "").replace("\r", "")
+                    sentence = doc_file.readline()
+                    while sentence_label is not None and len(sentence_label) != 0:
+                        doc_labels.append(int(sentence_label) - 1)
+                        doc_sentences.append(sentence.split())
+                        sentence_label = labels_file.readline().replace("\n", "").replace("\r", "")
+                        sentence = doc_file.readline()
+            docs.append(doc_sentences)
+            labels.append(doc_labels)
+    return docs, labels
 
 
-tokenized_data, vocab = get_vocab()
+
+
+
+
+# tokenized_data, vocab = get_vocab()

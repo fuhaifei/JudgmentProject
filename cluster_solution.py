@@ -63,3 +63,5 @@ if __name__ == "__main__":
     print(len(train_vec))
     print("训练聚类模型")
     all_models = cluster_doc(train_vec, [6, 7, 8, 9, 10, 11])
+from sklearn.linear_model import LogisticRegression
+log_reg = LogisticRegression(max_iter = 1000)
