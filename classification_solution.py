@@ -1,3 +1,5 @@
+import numpy as np
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
@@ -7,8 +9,12 @@ from doc2vec_model import get_doc2vec, get_doc_vec
 from preprocess import get_vocab, load_label_data
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
-import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # 分类标签
@@ -50,9 +56,34 @@ def init_train_data(doc_vec, labels):
     doc_labels_flatten = [sentence for doc in labels for sentence in doc]
     # 82开划分训练集和测试集合
     train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.2)
-    train_set = MyDataset(torch.Tensor(train_vec), torch.Tensor(train_label))
-    test_set = MyDataset(torch.Tensor(test_vec), torch.Tensor(test_label))
+    train_set = MyDataset(train_vec, train_label)
+    test_set = MyDataset(test_vec, test_label)
     return train_set, test_set
+
+
+def get_conf_matrix(true_labels, predict_labels):
+    """
+    生成混淆矩阵和对应的图片
+    :param true_labels:
+    :param predict_labels:
+    :return:
+    """
+    conf_mx = confusion_matrix(true_labels, predict_labels)
+    conf_sum = conf_mx.sum(axis=1, keepdims=True)
+    norm_conf_mx = conf_mx / conf_sum
+    np.fill_diagonal(norm_conf_mx, 0)
+    plt.matshow(conf_mx, cmap=plt.cm.gray)
+    plt.show()
+    plt.matshow(norm_conf_mx, cmap=plt.cm.gray)
+    plt.show()
+    return conf_mx
+
+
+
+
+"""
+1.基于pytroch的线性softmax模型划分
+"""
 
 
 class SoftMaxClassificationModel(nn.Module):
@@ -105,8 +136,8 @@ def train_net(net, train_iter, test_iter, loss_func, optimizer, num_epochs, devi
         time_start = time.time()
 
         for batch_features, batch_labels in train_iter:
-            prediction = net(batch_features.to(device))
-            loss = loss_func(prediction, batch_labels.to(device).long())
+            prediction = net(torch.Tensor(batch_features).to(device))
+            loss = loss_func(prediction, torch.Tensor(batch_labels).to(device).long())
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -130,19 +161,40 @@ def compute_accuracy(test_iter, net, device=None):
     totalNumber = 0
     correctNumber = 0
     for batch_features, batch_labels in test_iter:
-        prediction = net(batch_features.to(device))
+        prediction = net(torch.Tensor(batch_features).to(device))
         totalNumber += batch_features.shape[0]
-        correctNumber += (prediction.argmax(dim=1) == batch_labels.to(device)).cpu().sum().item()
+        correctNumber += (prediction.argmax(dim=1) == torch.Tensor(batch_labels).to(device)).cpu().sum().item()
     return correctNumber / totalNumber
 
 
-def get_conf_matrix(true_labels, predict_labels):
-    conf_mx = confusion_matrix(true_labels, predict_labels)
-    conf_sum = conf_mx.sum(axis=1, keepdims=True)
-    norm_conf_mx = conf_mx / conf_sum
-    np.fill_diagonal(norm_conf_mx, 0)
-    plt.matshow(conf_mx, cmap=plt.cm.gray)
-    plt.show()
-    plt.matshow(norm_conf_mx, cmap=plt.cm.gray)
-    plt.show()
-    return conf_mx
+"""
+2. 基于sklearn的SVM模型
+"""
+# 1.线性svm分类
+# linear_svm_parameters = {"model__C": [0.01, 0.1, 1, 2, 3], "model__max_iter": [1000000]}
+# linear_svm_clf = Pipeline([
+#     ("scaler", StandardScaler()),
+#     ("model", LinearSVC(loss='hinge', ))
+# ])
+# linear_svm_search_Model = GridSearchCV(linear_svm_clf, linear_svm_parameters)
+# linear_svm_search_Model.fit(doc_vec_flatten, doc_labels_flatten)
+# linear_svm_search_Model.best_score_
+
+# 2.不同kernel的svm模型尝试
+# kernel_svm_parameters = {"model__kernel": ["rbf", "linear", "poly"], "model__max_iter": [1000000]}
+
+# kernel_svm_clf = Pipeline([
+#     ("scaler", StandardScaler()),
+#     ("model", SVC())
+# ])
+# kernel_svm_search_Model = GridSearchCV(kernel_svm_clf, kernel_svm_parameters)
+# kernel_svm_search_Model.fit(doc_vec_flatten, doc_labels_flatten)
+# kernel_svm_search_Model.best_score_
+
+# 3.rbf内核测试
+# kernel_svm_parameters = {"model__kernel": ['rbf'], "model__gamma": [0.01, 0.04 ,0.05, 0.06, 0.08],
+#                          "model__C": [5, 6, 7, 8, 9], "model__max_iter": [1000000]}
+# 4.多项式内核测试
+
+# kernel_svm_parameters = {"model__kernel": ['poly'], "model__degree": [2, 3, 4], "model__C": [3, 4, 5, 6],
+#                          "model__coef0": [0.1, 1, 2, 3], "model__max_iter": [1000000]}
