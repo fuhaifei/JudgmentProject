@@ -108,11 +108,11 @@
 
    * 尝试了KNN分类，准确率基本稳定在0.62
 
-     ![image-20210708103000589](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210708103000589.png)
+     ![image-20210708103000589](README.assets\image-20210708103000589.png)
 
    * 随机森林分类，准确率在0.62-0.64之间
 
-     ![image-20210708162458932](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210708162458932.png)
+     ![image-20210708162458932](README.assets\image-20210708162458932.png)
 
 ### 7.7
 
