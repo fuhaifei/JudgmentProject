@@ -207,7 +207,7 @@ def compute_accuracy(test_iter, net, device=None):
 #                          "model__coef0": [0.1, 1, 2, 3], "model__max_iter": [1000000]}
 
 """
-3. 基于决策树的分类算法尝试
+3. 基于决策树的分类算法的尝试
 """
 # docs, doc_vec, labels = get_init_data()
 # doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
