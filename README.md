@@ -98,17 +98,37 @@
   3. bert模型提取特征向量（还是没想好）
 
 ## 2 具体完成记录
+### 7.8
+
+1. 今日完成
+
+   * 尝试了决策树模型，分类效果一般，准确率不到0.5
+
+     ![image-20210708100516283](README.assets\image-20210708100516283.png)
+
+   * 尝试了KNN分类，准确率基本稳定在0.62
+
+     ![image-20210708103000589](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210708103000589.png)
+
+   * 随机森林分类，准确率在0.62-0.64之间
+
+     ![image-20210708162458932](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210708162458932.png)
+
 ### 7.7
+
 1.今日完成
+
   * 尝试了SVM模型，并通过网格搜索确定了可能的最优结果，准确率略微优于softmax分类模型
 
     ![image-20210707100701437](README.assets/image-20210707100701437.png)
 
 ### 6.27
 1.今日完成
+
   * 实现了基于pytorch的连接层+softmax分类算法
 
 2.待解决问题
+
   * 分类标签问题还未处理
 ### 6.22
 1.今日完成

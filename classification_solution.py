@@ -1,20 +1,27 @@
+import os
+import time
 import numpy as np
 import matplotlib.pyplot as plt
+
 import torch
 import torch.nn as nn
 import torch.utils.data as Data
-import time
-import os
-from doc2vec_model import get_doc2vec, get_doc_vec
-from preprocess import get_vocab, load_label_data
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+
 from sklearn.svm import LinearSVC
 from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV
 
+from doc2vec_model import get_doc2vec, get_doc_vec
+from preprocess import get_vocab, load_label_data
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # 分类标签
@@ -198,3 +205,51 @@ def compute_accuracy(test_iter, net, device=None):
 
 # kernel_svm_parameters = {"model__kernel": ['poly'], "model__degree": [2, 3, 4], "model__C": [3, 4, 5, 6],
 #                          "model__coef0": [0.1, 1, 2, 3], "model__max_iter": [1000000]}
+
+"""
+3. 基于决策树的分类算法尝试
+"""
+# docs, doc_vec, labels = get_init_data()
+# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
+# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
+# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
+# decision_tree_parameters = {'criterion': ["gini"], 'max_depth': [9, 10, 11, 12, 13],
+#                             'min_samples_split': [3, 4, 5, 10], 'max_leaf_nodes': [40, 50, 60, 100, 200, 300]}
+# decision_tree_search_Model = GridSearchCV(DecisionTreeClassifier(), decision_tree_parameters)
+# decision_tree_search_Model.fit(x_train, y_train)
+# print(decision_tree_search_Model.best_score_)
+# print(decision_tree_search_Model.best_params_)
+# print(decision_tree_search_Model.score(x_test, y_test))
+
+"""
+4. K近邻分类算法
+"""
+# docs, doc_vec, labels = get_init_data()
+# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
+# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
+# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
+# KNeighbors_clf_parameters = {"model__weights": ['distance'], 'model__n_neighbors': [4, 5, 6, 7, 8, 9, 10]}
+# KNeighbors_svm_clf = Pipeline([
+#     ("scaler", StandardScaler()),
+#     ("model", KNeighborsClassifier())
+# ])
+# KNeighbors_clf_search_Model = GridSearchCV(KNeighbors_svm_clf, KNeighbors_clf_parameters)
+# KNeighbors_clf_search_Model.fit(x_train, y_train)
+# print(KNeighbors_clf_search_Model.best_score_)
+# print(KNeighbors_clf_search_Model.best_params_)
+# print(KNeighbors_clf_search_Model.score(x_test, y_test))
+
+"""
+5. 随机森林 + 计算随机森林
+"""
+# docs, doc_vec, labels = get_init_data()
+# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
+# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
+# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
+# rf_clf_parameters = {'n_estimators': [100, 200, 300], 'max_leaf_nodes': [100, 200, 250],
+#                      "n_jobs": [-1], 'oob_score': [True]}
+# rf_clf = GridSearchCV(RandomForestClassifier(), rf_clf_parameters)
+# rf_clf.fit(x_train, y_train)
+# print(rf_clf.best_score_)
+# print(rf_clf.best_params_)
+# print(rf_clf.score(x_test, y_test))
