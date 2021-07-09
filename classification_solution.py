@@ -13,6 +13,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
@@ -175,28 +177,40 @@ def compute_accuracy(test_iter, net, device=None):
 
 
 """
-2. 基于sklearn的SVM模型
+2. 基于机器学习的分类方法
 """
+
+
+def get_train_test(test_size=0.25) -> object:
+    docs, doc_vec, labels = get_init_data()
+    doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
+    doc_labels_flatten = [sentence for doc in labels for sentence in doc]
+    x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=test_size)
+    return x_train, x_test, y_train, y_test
+
+
+def train_and_score(test_model, test_parameters):
+    x_train, x_test, y_train, y_test = get_train_test()
+    aim_Model = GridSearchCV(test_model, test_parameters)
+    aim_Model.fit(x_train, y_train)
+    print(aim_Model.best_score_)
+    print(aim_Model.best_params_)
+    print(aim_Model.score(x_test, y_test))
+    return aim_Model.best_estimator_
+
 # 1.线性svm分类
 # linear_svm_parameters = {"model__C": [0.01, 0.1, 1, 2, 3], "model__max_iter": [1000000]}
 # linear_svm_clf = Pipeline([
 #     ("scaler", StandardScaler()),
 #     ("model", LinearSVC(loss='hinge', ))
 # ])
-# linear_svm_search_Model = GridSearchCV(linear_svm_clf, linear_svm_parameters)
-# linear_svm_search_Model.fit(doc_vec_flatten, doc_labels_flatten)
-# linear_svm_search_Model.best_score_
 
 # 2.不同kernel的svm模型尝试
 # kernel_svm_parameters = {"model__kernel": ["rbf", "linear", "poly"], "model__max_iter": [1000000]}
-
 # kernel_svm_clf = Pipeline([
 #     ("scaler", StandardScaler()),
 #     ("model", SVC())
 # ])
-# kernel_svm_search_Model = GridSearchCV(kernel_svm_clf, kernel_svm_parameters)
-# kernel_svm_search_Model.fit(doc_vec_flatten, doc_labels_flatten)
-# kernel_svm_search_Model.best_score_
 
 # 3.rbf内核测试
 # kernel_svm_parameters = {"model__kernel": ['rbf'], "model__gamma": [0.01, 0.04 ,0.05, 0.06, 0.08],
@@ -209,47 +223,34 @@ def compute_accuracy(test_iter, net, device=None):
 """
 3. 基于决策树的分类算法的尝试
 """
-# docs, doc_vec, labels = get_init_data()
-# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
-# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
-# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
 # decision_tree_parameters = {'criterion': ["gini"], 'max_depth': [9, 10, 11, 12, 13],
 #                             'min_samples_split': [3, 4, 5, 10], 'max_leaf_nodes': [40, 50, 60, 100, 200, 300]}
-# decision_tree_search_Model = GridSearchCV(DecisionTreeClassifier(), decision_tree_parameters)
-# decision_tree_search_Model.fit(x_train, y_train)
-# print(decision_tree_search_Model.best_score_)
-# print(decision_tree_search_Model.best_params_)
-# print(decision_tree_search_Model.score(x_test, y_test))
+
 
 """
 4. K近邻分类算法
 """
-# docs, doc_vec, labels = get_init_data()
-# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
-# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
-# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
 # KNeighbors_clf_parameters = {"model__weights": ['distance'], 'model__n_neighbors': [4, 5, 6, 7, 8, 9, 10]}
 # KNeighbors_svm_clf = Pipeline([
 #     ("scaler", StandardScaler()),
 #     ("model", KNeighborsClassifier())
 # ])
-# KNeighbors_clf_search_Model = GridSearchCV(KNeighbors_svm_clf, KNeighbors_clf_parameters)
-# KNeighbors_clf_search_Model.fit(x_train, y_train)
-# print(KNeighbors_clf_search_Model.best_score_)
-# print(KNeighbors_clf_search_Model.best_params_)
-# print(KNeighbors_clf_search_Model.score(x_test, y_test))
 
 """
-5. 随机森林 + 计算随机森林
+5. 随机森林 + 极端随机森林
 """
-# docs, doc_vec, labels = get_init_data()
-# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
-# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
-# x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten)
-# rf_clf_parameters = {'n_estimators': [100, 200, 300], 'max_leaf_nodes': [100, 200, 250],
+# rf_clf_parameters = {'n_estimators': [100, 200, 300],
 #                      "n_jobs": [-1], 'oob_score': [True]}
-# rf_clf = GridSearchCV(RandomForestClassifier(), rf_clf_parameters)
-# rf_clf.fit(x_train, y_train)
-# print(rf_clf.best_score_)
-# print(rf_clf.best_params_)
-# print(rf_clf.score(x_test, y_test))
+
+# ef_clf_parameters = {'criterion': ['gini'],
+#                      'max_depth': [20, 30, 40, 50, 60, 80, 100]}
+
+"""
+6. 集成学习的boosting方法（Adaboost 以及 GradientBoost两种方式
+"""
+# x_train, x_test, y_train, y_test = get_train_test()
+# ada_clf = AdaBoostClassifier(DecisionTreeClassifier(criterion='gini', max_depth=5, min_samples_split=5),
+#                              n_estimators=100, learning_rate=0.5)
+# ada_clf.fit(x_train, y_train)
+# print(ada_clf.score(x_train, y_train))
+# print(ada_clf.score(x_test, y_test))
