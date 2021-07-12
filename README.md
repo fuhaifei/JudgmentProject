@@ -98,6 +98,18 @@
   3. bert模型提取特征向量（还是没想好）
 
 ## 2 具体完成记录
+### 7.10
+
+1. 今日完成
+   * 增加了50篇标注数据，机器学习分类算法准确度有所提升
+2. 明日计划
+   1. 使用CLS作为句子的特征向量，替代doc2vec测试机器学习模型效果
+   2. 使用hugging face的BertForSequenceClassification，尝试fine tuning
+3. 问题
+   1. 截断长度设置为多少？ 目前计划150-200之间
+   2. fine tuning 的batchsize 和设备要求？ 先试试，不行就用服务器
+   3. 具体使用哪个中文bert模型？目前准备bert-base-chinese和hfl/chinese-bert-wwm-ext
+
 ### 7.9
 
 1. 今日完成

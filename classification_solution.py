@@ -65,8 +65,8 @@ def init_train_data(doc_vec, labels):
     doc_labels_flatten = [sentence for doc in labels for sentence in doc]
     # 82开划分训练集和测试集合
     train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.2)
-    train_set = MyDataset(train_vec, train_label)
-    test_set = MyDataset(test_vec, test_label)
+    train_set = MyDataset(torch.Tensor(train_vec), torch.Tensor(train_label))
+    test_set = MyDataset(torch.Tensor(test_vec), torch.Tensor(test_label))
     return train_set, test_set
 
 
@@ -145,8 +145,8 @@ def train_net(net, train_iter, test_iter, loss_func, optimizer, num_epochs, devi
         time_start = time.time()
 
         for batch_features, batch_labels in train_iter:
-            prediction = net(torch.Tensor(batch_features).to(device))
-            loss = loss_func(prediction, torch.Tensor(batch_labels).to(device).long())
+            prediction = net(batch_features.to(device))
+            loss = loss_func(prediction, batch_labels.to(device).long())
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
@@ -170,12 +170,20 @@ def compute_accuracy(test_iter, net, device=None):
     totalNumber = 0
     correctNumber = 0
     for batch_features, batch_labels in test_iter:
-        prediction = net(torch.Tensor(batch_features).to(device))
+        prediction = net(batch_features.to(device))
         totalNumber += batch_features.shape[0]
         correctNumber += (prediction.argmax(dim=1) == torch.Tensor(batch_labels).to(device)).cpu().sum().item()
     return correctNumber / totalNumber
 
 
+# docs, doc_vec, labels = get_init_data()
+# train_set, test_set = init_train_data(doc_vec, labels)
+# train_iter = Data.DataLoader(train_set, batch_size=BATCH_SIZE)
+# test_iter = Data.DataLoader(test_set, batch_size=BATCH_SIZE)
+# net = SoftMaxClassificationModel(50, 11)
+# loss_func = nn.CrossEntropyLoss()
+# optimizer  = torch.optim.SGD(net.parameters(),lr = LR)
+# train_net(net, train_iter, test_iter, loss_func, optimizer, SOFTMAX_EPOCH, device=None)
 """
 2. 基于机器学习的分类方法
 """
@@ -221,6 +229,7 @@ def train_and_score(test_model, test_parameters):
 #                          "model__coef0": [0.1, 1, 2, 3], "model__max_iter": [1000000]}
 
 """
+
 3. 基于决策树的分类算法的尝试
 """
 # decision_tree_parameters = {'criterion': ["gini"], 'max_depth': [9, 10, 11, 12, 13],
