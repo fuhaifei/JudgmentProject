@@ -70,7 +70,8 @@ def get_by_tag(aim_corpus, tag):
             return sentence
 
 
-def get_doc2vec(vector_size, min_count, epochs, model_path, input_path, is_load):
+def get_doc2vec(vector_size=VECTOR_SIZE, min_count=MIN_COUNT,
+                epochs=EPOCHS, model_path=MODEL_PATH, input_path=SEG_FILE_PATH, is_load=1):
     if is_load:
         doc2vec_model = gensim.models.doc2vec.Doc2Vec.load(model_path)
     else:

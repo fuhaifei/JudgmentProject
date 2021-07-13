@@ -7,24 +7,127 @@
 
 完成之后，通过分类模型和聚类模型查看方案可行性
 
+## 1. 已/未完成任务
 
-## 1 当前阶段完成任务
-相同的预处理+向量抽取部分
+### 已完成
 
 * 数据预处理(preprocess.py)
   1. 结巴（jieba）分词,对原文件分词
   2. 去除停用词（停用词文件cn_stopwords.txt)
-*  doc2vec 抽取段落特征向量 (doc2vec_model.py)
-### 1.1 聚类方案实现
+* doc2vec 抽取段落特征向量 (doc2vec_model.py)
+* bert模型抽取向量(bert2vec_model.py)
+
+### 未完成
+
+* 尝试使用 bert+fine tuning 改进模型效果
+
+## 2. 阶段成果
+
+主要分为分类和聚类两个方向的实验成果
+
+### 2.1 分类方案实现
+
 #### 实验过程
 
-- 预处理+向量抽取部分
+分类标签定义如下（按照文章从上到下）,目前标记的文章数为150，段落数共计4300
+
+```python
+LABELS = {1: "标题案号", 2: "当事人、辩护人、被害人情况", 3: "案件始末", 4: "指控", 5: "证实文件", 6: "辩护意见", 7: "事实", 8: "证据列举", 9: "判决结果", 10: "尾部", 11: "法律条文等附录"}
+```
+
+训练集和验证集按照8：2的比例划分
+
+```
+train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.2)
+```
+
+分类方案共计两个方向
+
+1. **方向1**：使用前置模型（doc2vec 或 bert）提取段落特征向量，输入到后续的分类模型进行训练
+2. **方向2**：使用bert+fine tuning的方式，实现分类
+
+#### 方向1：前置模型+分类模型
+
+1. **线性softmax分类模型**
+
+   * **doc2vec + softmax**  准确率在0.57-0.60之间,平均召回率和精确率分别为0.51和0.58
+
+     ![image-20210705153135234](README.assets/image-20210705153135234.png)
+
+     ![image-20210713163018380](README.assets/mage-20210713163018380.png)
+
+   * 
+
+2. **SVM模型**
+
+   * **doc2vec + SVM**   准确率在0.68左右，平均召回率和精确率分别为081和0.85
+
+   ![image-20210713163832314](README.assets/image-20210713163832314.png)
+
+   ![image-20210713164059734](README.assets/image-20210713164059734.png)
+
+3. **决策树模型**
+
+   * **doc2vec + 决策树模型**   效果不如SVM模型
+
+     ![image-20210713164911623](README.assets/image-20210713164911623.png)
+
+   ![image-20210713165505162](README.assets/image-20210713165505162.png)
+
+4. **KNN分类模型**
+
+   * **doc2vec + KNN分类模型** 效果比较好
+
+   ![image-20210713165659460](README.assets/image-20210713165659460.png)
+
+![image-20210713165748590](README.assets/image-20210713165748590.png)
+
+5. **随机森林分类模型**
+
+   * **doc2vec + 随机森林分类模型**  效果优于KNN
+
+     ![image-20210713165921566](README.assets/image-20210713165921566.png)
+
+     ![image-20210713165944895](README.assets/image-20210713165944895.png)
+
+6. **极端随机森林分类模型**
+
+   * **doc2vec + 极端随机森林分类模型**  效果最好的机器学习模型
+
+     ![image-20210713170125175](README.assets/image-20210713170125175.png)
+
+     ![image-20210713170201030](README.assets/image-20210713170201030.png)
+
+7. **集成学习-Adaboost**
+
+   * **doc2vec + Adaboost 以决策树作为基分类器** 出现了过拟合问题
+
+     ![image-20210713170452127](README.assets/image-20210713170452127.png)
+
+     ![image-20210713170531255](README.assets/image-20210713170531255.png)
+
+8. **集成学习-GradientBoost**
+
+   * **doc2vec + GradientBoost ** 出现了过拟合问题
+
+   ![image-20210713170833034](README.assets/image-20210713170833034.png)
+
+   ![image-20210713170917086](README.assets/image-20210713170917086.png)
+
+
+
+### 2.1 聚类方案实现
+
+#### 实验过程
+
+- 预处理+doc2vec/bert 抽取段落向量
 
 - kmeans 聚类（cluster_solution.py）
 
   1. 根据标注预期选择了6, 7, 8, 9, 10, 11的不同聚类数量kernel，进行实验
   2. 分别训练不同kernel的kemeans模型，通过轮廓系数和平均距离，确定选择kernel=9的聚类模型
   3. 每个类别随机抽取100个段落，分析对应类别特征
+
 #### 结果分析
 
 1. **class_0**：涉及诈骗案件的指控，判决，查明部分（最长的那几个段）
@@ -42,46 +145,15 @@
 1. 涉及个人信息的段落聚类，段落的案件信息会影响聚类结果，导致与按照结构分类目标不符合，所以会出现class_0,class_1,class_2,class_4,class_8四个相似分类
 2. 不涉及具体案件信息的段落聚类效果较好，class_3，class_5，class_6，class_7
 
-### 1.2 分类方案实现
 
-#### 实验过程
 
-- 预处理+向量抽取部分
 
-- 分类标签定义如下（按照文章从上到下）
 
-  ```python
-  LABELS = {1: "标题案号", 2: "当事人、辩护人、被害人情况", 3: "案件始末", 4: "指控", 5: "证实文件", 6: "辩护意见", 7: "事实", 8: "证据列举", 9: "判决结果", 10: "尾部", 11: "法律条文等附录"}
-  ```
 
-  - 目前标记的文章数为100，段落数共计3253
-
-- 线性softmax分类模型
-
-  * 损失函数：交叉熵损失函数
-
-  * 求解函数：SGD 梯度下降求解
-
-    ```python
-    loss_func = nn.CrossEntropyLoss()
-    optimizer  = torch.optim.SGD(net.parameters(),lr = LR)
-    ```
-
-* 采用8:2方式划分训练集和测试集
-
-  ```python
-  train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.2)
-  ```
-
-#### 结果分析
-
-* 准确率基本稳定在0.57-0.60之间，效果一般
-
-  ![image-20210705153135234](README.assets/image-20210705153135234.png)
 
 * 在整个数据集上，进行混淆矩阵分析(行为真实标签,列为预测标签)
 
-  <img src="README.assets\image-20210705154925725.png" alt="image-20210705154925725" style="zoom:50%;" />
+  <img src="README.assets/image-20210705154925725.png" alt="image-20210705154925725" style="zoom:50%;" />
 
   1. 左下图可得，label = {1，8， 9 ， 10} 分类效果较好，分类错误数量较少；其余标签分类效果较差
   2. 右下图可得，大量的其他标签段落错误分类为{1， 2， 8， 9}，其中label = 5  证实文件段落分容易分类为label = 9 判决结果段落；label = 6 辩护意见段落分容易分类为 label = 8 证据列举段落；label = 11 法律条文等附录段落分容易分类为 label = 1 标题案号段落
@@ -96,75 +168,3 @@
   1. 继续标注数据
   2. 学习决策树和集成学习，实现另外的分类算法，改进分类效果
   3. bert模型提取特征向量（还是没想好）
-
-## 2 具体完成记录
-### 7.10
-
-1. 今日完成
-   * 增加了50篇标注数据，机器学习分类算法准确度有所提升
-2. 明日计划
-   1. 使用CLS作为句子的特征向量，替代doc2vec测试机器学习模型效果
-   2. 使用hugging face的BertForSequenceClassification，尝试fine tuning
-3. 问题
-   1. 截断长度设置为多少？ 目前计划150-200之间
-   2. fine tuning 的batchsize 和设备要求？ 先试试，不行就用服务器
-   3. 具体使用哪个中文bert模型？目前准备bert-base-chinese和hfl/chinese-bert-wwm-ext
-
-### 7.9
-
-1. 今日完成
-
-   * 极端随机森林，准确率在0.65-0.67之间
-
-     ![image-20210709104343409](README.assets/image-20210709104343409.png)
-
-   * 集成学习方法-AdaBoost模型
-
-     * 数据量不够，太容易过拟合，限制拟合程度的话，效果跟决策树区别不大
-
-       ![image-20210709111252844](README.assets/image-20210709111252844.png)
-
-   * 集成学习方法-GradientBoost模型
-     * 与Adaboost同样的问题
-     
-       ![image-20210709151957243](README.assets/image-20210709151957243.png)
-
-### 7.8
-
-1. 今日完成
-
-   * 尝试了决策树模型，分类效果一般，准确率不到0.5
-
-     ![image-20210708100516283](README.assets/image-20210708100516283.png)
-
-   * 尝试了KNN分类，准确率基本稳定在0.62
-
-     ![image-20210708103000589](README.assets/image-20210708103000589.png)
-
-   * 随机森林分类，准确率在0.62-0.64之间
-     ![image-20210708162458932](README.assets/image-20210708162458932.png)
-
-### 7.7
-
-1.今日完成
-
-  * 尝试了SVM模型，并通过网格搜索确定了可能的最优结果，准确率略微优于softmax分类模型
-
-    ![image-20210707100701437](README.assets/image-20210707100701437.png)
-
-### 6.27
-1.今日完成
-
-  * 实现了基于pytorch的连接层+softmax分类算法
-
-2.待解决问题
-
-  * 分类标签问题还未处理
-### 6.22
-1.今日完成
-  * 完成了 doc2vec 抽取特征向量()
-  * 确定了文件组织形式
-
-2.待解决问题
-  * doc2vec 超参数如何确定
-  * 抽取效果一般

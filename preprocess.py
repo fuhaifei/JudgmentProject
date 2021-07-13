@@ -134,5 +134,3 @@ def load_label_data(label_file_path=LABEL_FILE_PATH, seg_file_path=SEG_FILE_PATH
 
 
 
-
-# tokenized_data, vocab = get_vocab()

@@ -20,10 +20,14 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
 from sklearn.model_selection import GridSearchCV
+
 
 from doc2vec_model import get_doc2vec, get_doc_vec
 from preprocess import get_vocab, load_label_data
+from bert2vec_model import get_cls_vec
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # 分类标签
@@ -31,43 +35,37 @@ LABELS = {1: "标题案号", 2: "当事人、辩护人、被害人情况", 3: "�
           8: "证据列举", 9: "判决结果", 10: "尾部", 11: "法律条文等附录"}
 LABEL_NUMBER = 11
 
-# doc2vec训练模型超参，没用就是占位
-VECTOR_SIZE = 50
-MIN_COUNT = 2
-EPOCHS = 500
-SEG_FILE_PATH = "./files/seg_files"
-MODEL_PATH = ".\\files\\model_file\\doc2vec_temp1.model"
+
 # 基于线性softmax的分类算法，超参
 BATCH_SIZE = 128
 SOFTMAX_EPOCH = 300
 LR = 0.04
 
 
-def get_init_data():
-    """
-    doc2vec模型转化向量
-    :return: 源数据，对应的向量表示
-    """
-    model = get_doc2vec(VECTOR_SIZE, MIN_COUNT, EPOCHS, MODEL_PATH, SEG_FILE_PATH, 1)
-    docs, labels = load_label_data()
-    doc_vec = get_doc_vec(docs, model)
-    return docs, doc_vec, labels
+def get_init_vec(docs, choice):
+    # choice = 1 选择使用doc2vec向量
+    if choice == 1:
+        doc2vec_model = get_doc2vec()
+        return get_doc_vec(docs, doc2vec_model)
+    else:
+        return get_cls_vec(docs)
 
 
-def init_train_data(doc_vec, labels):
-    """
-    :param doc_vec: doc2vec抽取的文章向量
-    :param labels: 对应的标签
-    :return: 封装好的训练和测试集dataset
-    """
-    # 首先将数组展开为nums * features形式
+def get_train_test(doc_vec, labels) -> object:
     doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
     doc_labels_flatten = [sentence for doc in labels for sentence in doc]
-    # 82开划分训练集和测试集合
-    train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.2)
-    train_set = MyDataset(torch.Tensor(train_vec), torch.Tensor(train_label))
-    test_set = MyDataset(torch.Tensor(test_vec), torch.Tensor(test_label))
-    return train_set, test_set
+    x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=0.20)
+    return x_train, x_test, y_train, y_test
+
+
+def train_and_score(test_model, test_parameters, doc_vec, labels):
+    x_train, x_test, y_train, y_test = get_train_test(doc_vec, labels)
+    aim_model = GridSearchCV(test_model, test_parameters)
+    aim_model.fit(x_train, y_train)
+    print("训练准确率：", aim_model.best_score_)
+    print(aim_model.best_params_)
+    print("验证准确率：", aim_model.score(x_test, y_test))
+    return aim_model.best_estimator_
 
 
 def get_conf_matrix(true_labels, predict_labels):
@@ -86,9 +84,6 @@ def get_conf_matrix(true_labels, predict_labels):
     plt.matshow(norm_conf_mx, cmap=plt.cm.gray)
     plt.show()
     return conf_mx
-
-
-
 
 """
 1.基于pytroch的线性softmax模型划分
@@ -176,35 +171,30 @@ def compute_accuracy(test_iter, net, device=None):
     return correctNumber / totalNumber
 
 
-# docs, doc_vec, labels = get_init_data()
-# train_set, test_set = init_train_data(doc_vec, labels)
+# docs, labels = load_label_data()
+# doc_vec = get_init_vec(docs, 1)
+# x_train, x_test, y_train, y_test = get_train_test(doc_vec, labels)
+# train_set = MyDataset(torch.Tensor(x_train), torch.Tensor(y_train))
+# test_set = MyDataset(torch.Tensor(x_test), torch.Tensor(y_test))
 # train_iter = Data.DataLoader(train_set, batch_size=BATCH_SIZE)
 # test_iter = Data.DataLoader(test_set, batch_size=BATCH_SIZE)
 # net = SoftMaxClassificationModel(50, 11)
 # loss_func = nn.CrossEntropyLoss()
 # optimizer  = torch.optim.SGD(net.parameters(),lr = LR)
 # train_net(net, train_iter, test_iter, loss_func, optimizer, SOFTMAX_EPOCH, device=None)
+# doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
+# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
+# prediction = net(torch.Tensor(doc_vec_flatten)).argmax(dim = 1)
+# recall_score = recall_score(doc_labels_flatten, prediction.numpy(), average='macro')
+# precision_score = precision_score(doc_labels_flatten, prediction.numpy(), average='macro')
+# print("召回率",recall_score)
+# print("精确率",precision_score)
 """
 2. 基于机器学习的分类方法
 """
 
 
-def get_train_test(test_size=0.25) -> object:
-    docs, doc_vec, labels = get_init_data()
-    doc_vec_flatten = [sentence for doc in doc_vec for sentence in doc]
-    doc_labels_flatten = [sentence for doc in labels for sentence in doc]
-    x_train, x_test, y_train, y_test = train_test_split(doc_vec_flatten, doc_labels_flatten, test_size=test_size)
-    return x_train, x_test, y_train, y_test
 
-
-def train_and_score(test_model, test_parameters):
-    x_train, x_test, y_train, y_test = get_train_test()
-    aim_Model = GridSearchCV(test_model, test_parameters)
-    aim_Model.fit(x_train, y_train)
-    print(aim_Model.best_score_)
-    print(aim_Model.best_params_)
-    print(aim_Model.score(x_test, y_test))
-    return aim_Model.best_estimator_
 
 # 1.线性svm分类
 # linear_svm_parameters = {"model__C": [0.01, 0.1, 1, 2, 3], "model__max_iter": [1000000]}
@@ -263,3 +253,9 @@ def train_and_score(test_model, test_parameters):
 # ada_clf.fit(x_train, y_train)
 # print(ada_clf.score(x_train, y_train))
 # print(ada_clf.score(x_test, y_test))
+
+# prediction = best_model.predict(doc_vec_flatten)
+# my_recall_score = recall_score(doc_labels_flatten, prediction, average='macro')
+# my_precision_score = precision_score(doc_labels_flatten, prediction, average='macro')
+# print("召回率",my_recall_score)
+# print("精确率",my_precision_score)
