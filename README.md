@@ -50,71 +50,42 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
 #### 方向1：前置模型+分类模型
 
-1. **线性softmax分类模型**
+基于**doc2vec提取段落特征向量**的不同分类模型数据
 
-   * **doc2vec + softmax**  准确率在0.57-0.60之间,平均召回率和精确率分别为0.51和0.58
+|        分类模型        | 训练集准确率(accuracy) | 验证集准确率(accuracy) | 平均召回率（recall） | 平均精确率（precision） |
+| :--------------------: | :--------------------: | :--------------------: | :------------------: | :---------------------: |
+|    线性softmax分类     |       0.57-0.60        |          0.71          |         0.8          |          0.79           |
+|          SVM           |          0.68          |          0.68          |         0.81         |          0.85           |
+|         决策树         |          0.49          |          0.53          |         0.56         |          0.63           |
+|        KNN分类         |        **0.64**        |          0.66          |         0.89         |          0.92           |
+|        随机森林        |        **0.67**        |          0.67          |         0.93         |          0.95           |
+|      极端随机森林      |          0.68          |          0.68          |         0.89         |          0.95           |
+|   集成学习-Adaboost    |        **0.87**        |          0.54          |         0.74         |          0.87           |
+| 集成学习-GradientBoost |        **0.97**        |          0.69          |         0.88         |          0.91           |
 
-     ![image-20210705153135234](README.assets/image-20210705153135234.png)
+基于**bert提取段落特征向量**的不同分类模型数据
 
-     ![image-20210713163018380](README.assets/image-20210713163018380.png)
+|        分类模型        | 训练集准确率(accuracy) | 验证集准确率(accuracy) | 平均召回率（recall） | 平均精确率（precision） |
+| :--------------------: | :--------------------: | :--------------------: | :------------------: | :---------------------: |
+|    线性softmax分类     |          0.72          |          0.72          |         0.83         |          0.79           |
+|          SVM           |        **0.89**        |          0.87          |         0.92         |          0.95           |
+|         决策树         |          0.75          |          0.79          |         0.77         |          0.78           |
+|        KNN分类         |        **0.86**        |          0.85          |         0.94         |          0.95           |
+|        随机森林        |        **0.86**        |          0.87          |         0.93         |          0.95           |
+|      极端随机森林      |        **0.87**        |          0.85          |         0.93         |          0.94           |
+|   集成学习-Adaboost    |        **0.98**        |          0.84          |         0.92         |          0.94           |
+| 集成学习-GradientBoost |        **0.99**        |          0.87          |         0.94         |          0.94           |
 
-   * 
+#### 总结
 
-2. **SVM模型**
+1. 基于doc2vec提取特征向量不同模型的准确率在0.57-0.68左右，基于bert模型基本均在0.85以上，比较之下bert提取特征效果更优
 
-   * **doc2vec + SVM**   准确率在0.68左右，平均召回率和精确率分别为081和0.85
+2. 不同机器模型中，分类效果较好的主要是SVM，极端随机森林，基于bert提取的准确率从能够达到0.87
+3. 两个集成学习方法出现了过拟合问题，可能原因是训练数据量不够，如果数据量足够，效果**可能优于**其他模型
 
-     ![image-20210713163832314](README.assets/image-20210713163832314.png)
+#### 结论
 
-     ![image-20210713164059734](README.assets/image-20210713164059734.png)
-
-3. **决策树模型**
-
-   * **doc2vec + 决策树模型**   效果不如SVM模型
-
-     ![image-20210713164911623](README.assets/image-20210713164911623.png)
-  
-     ![image-20210713165505162](README.assets/image-20210713165505162.png)
-
-4. **KNN分类模型**
-
-   * **doc2vec + KNN分类模型** 效果比较好
-
-     ![image-20210713165659460](README.assets/image-20210713165659460.png)
-   
-     ![image-20210713165748590](README.assets/image-20210713165748590.png)
-   
-5. **随机森林分类模型**
-
-   * **doc2vec + 随机森林分类模型**  效果优于KNN
-
-     ![image-20210713165921566](README.assets/image-20210713165921566.png)
-
-     ![image-20210713165944895](README.assets/image-20210713165944895.png)
-
-6. **极端随机森林分类模型**
-
-   * **doc2vec + 极端随机森林分类模型**  效果最好的机器学习模型
-
-     ![image-20210713170125175](README.assets/image-20210713170125175.png)
-
-     ![image-20210713170201030](README.assets/image-20210713170201030.png)
-
-7. **集成学习-Adaboost**
-
-   * **doc2vec + Adaboost 以决策树作为基分类器** 出现了过拟合问题
-
-     ![image-20210713170452127](README.assets/image-20210713170452127.png)
-
-     ![image-20210713170531255](README.assets/image-20210713170531255.png)
-
-8. **集成学习-GradientBoost**
-
-   * **doc2vec + GradientBoost **  出现了过拟合问题
-
-     ![image-20210713170833034](README.assets/image-20210713170833034.png)
-
-     ![image-20210713170917086](README.assets/image-20210713170917086.png)
+当前实验方向最好的方案为 **bert+ 极端随机森林**，准确率能够接近0.9。
 
 
 
@@ -149,24 +120,114 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
 
 
+## 3. 附录
 
+### 1. 分类方案实现方向1，实验结果记录
 
+1. **线性softmax分类模型**
 
+   * **doc2vec + softmax**  准确率在0.57-0.60之间,平均召回率和精确率分别为0.51和0.58
 
-* 在整个数据集上，进行混淆矩阵分析(行为真实标签,列为预测标签)
+     ![image-20210705153135234](README.assets/image-20210705153135234.png)
 
-  <img src="README.assets/image-20210705154925725.png" alt="image-20210705154925725" style="zoom:50%;" />
+     ![image-20210713163018380](README.assets/image-20210713163018380.png)
 
-  1. 左下图可得，label = {1，8， 9 ， 10} 分类效果较好，分类错误数量较少；其余标签分类效果较差
-  2. 右下图可得，大量的其他标签段落错误分类为{1， 2， 8， 9}，其中label = 5  证实文件段落分容易分类为label = 9 判决结果段落；label = 6 辩护意见段落分容易分类为 label = 8 证据列举段落；label = 11 法律条文等附录段落分容易分类为 label = 1 标题案号段落
+     
 
-#### 总结
+2. **SVM模型**
 
-* 目前分类效果还比较一般，可能是由于：
-  1. 标记数据还比较少
-  2. 分类模型不够有效
-  3. doc2vec特征提取能力一般
-* 下一步解决方案：
-  1. 继续标注数据
-  2. 学习决策树和集成学习，实现另外的分类算法，改进分类效果
-  3. bert模型提取特征向量（还是没想好）
+   * **doc2vec + SVM**   准确率在0.68左右，平均召回率和精确率分别为0.81和0.85
+
+     ![image-20210713163832314](README.assets/image-20210713163832314.png)
+
+     ![image-20210713164059734](README.assets/image-20210713164059734.png)
+
+   * **bert+SVM**  准确率提高了0.3
+
+     ![image-20210714091744908](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714091744908.png)
+
+     ![image-20210714094853853](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714094853853.png)
+
+3. **决策树模型**
+
+   * **doc2vec + 决策树模型**   效果不如SVM模型
+
+     ![image-20210713164911623](README.assets/image-20210713164911623.png)
+
+     ![image-20210713165505162](README.assets/image-20210713165505162.png)
+
+   * **bert+决策树模型** 
+
+     ![image-20210714095346554](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095346554.png)
+
+     ![image-20210714095414689](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095414689.png)
+
+4. **KNN分类模型**
+
+   * **doc2vec + KNN分类模型** 效果比较好
+
+     ![image-20210713165659460](README.assets/image-20210713165659460.png)
+
+     ![image-20210713165748590](README.assets/image-20210713165748590.png)
+
+   * **doc2vec+KNN分类模型**
+
+     ![image-20210714101115387](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101115387.png)
+
+     ![image-20210714101149533](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101149533.png)
+
+5. **随机森林分类模型**
+
+   * **doc2vec + 随机森林分类模型**  效果优于KNN
+
+     ![image-20210713165921566](README.assets/image-20210713165921566.png)
+
+     ![image-20210713165944895](README.assets/image-20210713165944895.png)
+
+   * **bert+随机森林** 
+
+     ![image-20210714095956982](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095956982.png)
+
+     ![image-20210714100401804](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100401804.png)
+
+6. **极端随机森林分类模型**
+
+   * **doc2vec + 极端随机森林分类模型**  效果最好的机器学习模型
+
+     ![image-20210713170125175](README.assets/image-20210713170125175.png)
+
+     ![image-20210713170201030](README.assets/image-20210713170201030.png)
+
+   * **bert+计算随机森林分类** 
+
+     ![image-20210714100912056](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100912056.png)
+
+     ![image-20210714100922173](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100922173.png)
+
+7. **集成学习-Adaboost**
+
+   * **doc2vec + Adaboost 以决策树作为基分类器** 出现了过拟合问题
+
+     ![image-20210713170452127](README.assets/image-20210713170452127.png)
+
+     ![image-20210713170531255](README.assets/image-20210713170531255.png)
+
+   * **bert + Adaboost 以决策树作为基分类器**
+
+     ![image-20210714101645166](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101645166.png)
+
+     ![image-20210714101703462](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101703462.png)
+
+8. **集成学习-GradientBoost**
+
+   * **doc2vec + GradientBoost **  出现了过拟合问题
+
+     ![image-20210713170833034](README.assets/image-20210713170833034.png)
+
+     ![image-20210713170917086](README.assets/image-20210713170917086.png)
+
+   * **bert + GradientBoost** 
+
+     ![image-20210714103546073](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714103546073.png)
+
+     ![image-20210714103605605](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714103605605.png)

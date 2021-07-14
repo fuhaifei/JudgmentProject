@@ -61,7 +61,7 @@ def get_train_test(doc_vec, labels) -> object:
 
 def train_and_score(test_model, test_parameters, doc_vec, labels):
     x_train, x_test, y_train, y_test = get_train_test(doc_vec, labels)
-    aim_model = GridSearchCV(test_model, test_parameters)
+    aim_model = GridSearchCV(test_model, test_parameters, n_jobs=-1)
     aim_model.fit(x_train, y_train)
     print("训练准确率：", aim_model.best_score_)
     print(aim_model.best_params_)

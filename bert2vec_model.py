@@ -4,6 +4,7 @@ from transformers import BertModel, BertTokenizer
 
 # 哈工大中文bert模型,最高支持512长度句子
 MODEL_NAME = "hfl/chinese-bert-wwm-ext"
+MAX_SEQ_LENGTH = 150
 
 
 def get_cls_vec(docs):
@@ -28,3 +29,17 @@ def get_cls_vec(docs):
         result.append(doc_vec)
     return result
 
+
+def prepare_train_data(sentences, tokenizer, max_seq_length=MAX_SEQ_LENGTH):
+    result_tokens = []
+    result_token_ids = []
+    for sentence in sentences:
+        sentence = ''.join(sentence)
+        # 对源句子进行切词和截断
+        sentence_tokens = tokenizer.tokenize(sentence)
+        if len(sentence_tokens) > max_seq_length - 2:
+            sentence_tokens = sentence_tokens[:max_seq_length - 2]
+        sentence_tokens = ['[CLS]'] + sentence_tokens + ['[SEP]']
+        # 获取对应的mask和segment()
+        sentence_padding = [0] * (max_seq_length - len(sentence_tokens))
+        result_tokens.append(sentence_tokens)
