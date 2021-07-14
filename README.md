@@ -66,7 +66,7 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
      ![image-20210713163832314](README.assets/image-20210713163832314.png)
 
-   ![image-20210713164059734](README.assets/image-20210713164059734.png)
+     ![image-20210713164059734](README.assets/image-20210713164059734.png)
 
 3. **决策树模型**
 
