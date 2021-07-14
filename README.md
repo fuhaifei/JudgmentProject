@@ -82,7 +82,7 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
      ![image-20210713165659460](README.assets/image-20210713165659460.png)
    
-   ​		![image-20210713165748590](README.assets/image-20210713165748590.png)
+     ![image-20210713165748590](README.assets/image-20210713165748590.png)
    
 5. **随机森林分类模型**
 
@@ -112,9 +112,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **doc2vec + GradientBoost **  出现了过拟合问题
 
-   ![image-20210713170833034](README.assets/image-20210713170833034.png)
+     ![image-20210713170833034](README.assets/image-20210713170833034.png)
 
-   ![image-20210713170917086](README.assets/image-20210713170917086.png)
+     ![image-20210713170917086](README.assets/image-20210713170917086.png)
 
 
 
