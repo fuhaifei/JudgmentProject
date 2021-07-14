@@ -46,6 +46,8 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 1. **方向1**：使用前置模型（doc2vec 或 bert）提取段落特征向量，输入到后续的分类模型进行训练
 2. **方向2**：使用bert+fine tuning的方式，实现分类
 
+------
+
 #### 方向1：前置模型+分类模型
 
 1. **线性softmax分类模型**
