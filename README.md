@@ -144,9 +144,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert+SVM**  准确率提高了0.3
 
-     ![image-20210714091744908](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714091744908.png)
+     ![image-20210714091744908](README.assets/image-20210714091744908.png)
 
-     ![image-20210714094853853](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714094853853.png)
+     ![image-20210714094853853](README.assets/image-20210714094853853.png)
 
 3. **决策树模型**
 
@@ -158,9 +158,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert+决策树模型** 
 
-     ![image-20210714095346554](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095346554.png)
+     ![image-20210714095346554](README.assets/image-20210714095346554.png)
 
-     ![image-20210714095414689](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095414689.png)
+     ![image-20210714095414689](README.assets/image-20210714095414689.png)
 
 4. **KNN分类模型**
 
@@ -172,9 +172,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **doc2vec+KNN分类模型**
 
-     ![image-20210714101115387](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101115387.png)
+     ![image-20210714101115387](README.assets/image-20210714101115387.png)
 
-     ![image-20210714101149533](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101149533.png)
+     ![image-20210714101149533](README.assets/image-20210714101149533.png)
 
 5. **随机森林分类模型**
 
@@ -186,9 +186,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert+随机森林** 
 
-     ![image-20210714095956982](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714095956982.png)
+     ![image-20210714095956982](README.assets/image-20210714095956982.png)
 
-     ![image-20210714100401804](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100401804.png)
+     ![image-20210714100401804](README.assets/image-20210714100401804.png)
 
 6. **极端随机森林分类模型**
 
@@ -200,9 +200,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert+计算随机森林分类** 
 
-     ![image-20210714100912056](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100912056.png)
+     ![image-20210714100912056](README.assets/image-20210714100912056.png)
 
-     ![image-20210714100922173](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714100922173.png)
+     ![image-20210714100922173](README.assets/image-20210714100922173.png)
 
 7. **集成学习-Adaboost**
 
@@ -214,9 +214,9 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert + Adaboost 以决策树作为基分类器**
 
-     ![image-20210714101645166](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101645166.png)
+     ![image-20210714101645166](README.assets/image-20210714101645166.png)
 
-     ![image-20210714101703462](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714101703462.png)
+     ![image-20210714101703462](README.assets/image-20210714101703462.png)
 
 8. **集成学习-GradientBoost**
 
@@ -228,6 +228,6 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **bert + GradientBoost** 
 
-     ![image-20210714103546073](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714103546073.png)
+     ![image-20210714103546073](README.assets/image-20210714103546073.png)
 
-     ![image-20210714103605605](D:\CodeProject\PycharmProjects\JudgmentProject\README.assets\image-20210714103605605.png)
+     ![image-20210714103605605](README.assets/image-20210714103605605.png)
