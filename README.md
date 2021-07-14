@@ -54,7 +54,7 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
      ![image-20210705153135234](README.assets/image-20210705153135234.png)
 
-     ![image-20210713163018380](README.assets/mage-20210713163018380.png)
+     ![image-20210713163018380](README.assets/image-20210713163018380.png)
 
    * 
 
@@ -62,7 +62,7 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
    * **doc2vec + SVM**   准确率在0.68左右，平均召回率和精确率分别为081和0.85
 
-   ![image-20210713163832314](README.assets/image-20210713163832314.png)
+     ![image-20210713163832314](README.assets/image-20210713163832314.png)
 
    ![image-20210713164059734](README.assets/image-20210713164059734.png)
 
@@ -71,17 +71,17 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
    * **doc2vec + 决策树模型**   效果不如SVM模型
 
      ![image-20210713164911623](README.assets/image-20210713164911623.png)
-
-   ![image-20210713165505162](README.assets/image-20210713165505162.png)
+  
+     ![image-20210713165505162](README.assets/image-20210713165505162.png)
 
 4. **KNN分类模型**
 
    * **doc2vec + KNN分类模型** 效果比较好
 
-   ![image-20210713165659460](README.assets/image-20210713165659460.png)
-
-![image-20210713165748590](README.assets/image-20210713165748590.png)
-
+     ![image-20210713165659460](README.assets/image-20210713165659460.png)
+   
+   ​		![image-20210713165748590](README.assets/image-20210713165748590.png)
+   
 5. **随机森林分类模型**
 
    * **doc2vec + 随机森林分类模型**  效果优于KNN

@@ -42,13 +42,14 @@ SOFTMAX_EPOCH = 300
 LR = 0.04
 
 
-def get_init_vec(docs, choice):
+def get_init_vec(choice):
+    docs, labels = load_label_data()
     # choice = 1 选择使用doc2vec向量
     if choice == 1:
         doc2vec_model = get_doc2vec()
-        return get_doc_vec(docs, doc2vec_model)
+        return docs, labels, get_doc_vec(docs, doc2vec_model)
     else:
-        return get_cls_vec(docs)
+        return docs, labels, get_cls_vec(docs)
 
 
 def get_train_test(doc_vec, labels) -> object:
