@@ -108,7 +108,7 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
 8. **集成学习-GradientBoost**
 
-   * **doc2vec + GradientBoost ** 出现了过拟合问题
+   * **doc2vec + GradientBoost **  出现了过拟合问题
 
    ![image-20210713170833034](README.assets/image-20210713170833034.png)
 
