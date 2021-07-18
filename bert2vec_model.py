@@ -1,10 +1,22 @@
+import time
 import torch
+import torch.nn as nn
+from torch.utils.data import TensorDataset
+from torch.utils.data import DataLoader
+from torch.utils.data import RandomSampler
+from transformers import BertModel, BertTokenizer, BertForSequenceClassification
+
 from preprocess import load_label_data
-from transformers import BertModel, BertTokenizer
 
 # 哈工大中文bert模型,最高支持512长度句子
 MODEL_NAME = "hfl/chinese-bert-wwm-ext"
 MAX_SEQ_LENGTH = 150
+
+# fine-tuning 的序列长度
+BATCH_SIZE = 20
+EPOCHS = 100
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_cls_vec(docs):
@@ -31,7 +43,15 @@ def get_cls_vec(docs):
 
 
 def prepare_train_data(sentences, tokenizer, max_seq_length=MAX_SEQ_LENGTH):
+    """
+    将输入句子转化为模型输入形式
+    :param sentences: 输入段落
+    :param tokenizer: 分词器
+    :param max_seq_length: 最大输入序列长
+    :return: 返回 序列， 序列mask， 序列type_ids
+    """
     result_tokens = []
+    result_masks = []
     result_token_ids = []
     for sentence in sentences:
         sentence = ''.join(sentence)
@@ -42,4 +62,95 @@ def prepare_train_data(sentences, tokenizer, max_seq_length=MAX_SEQ_LENGTH):
         sentence_tokens = ['[CLS]'] + sentence_tokens + ['[SEP]']
         # 获取对应的mask和segment()
         sentence_padding = [0] * (max_seq_length - len(sentence_tokens))
+        sentence_mask = [1] * len(sentence_tokens) + sentence_padding
+        sentence_type_ids = [0] * len(sentence_tokens) + sentence_padding
         result_tokens.append(sentence_tokens)
+        result_masks.append(sentence_mask)
+        result_token_ids.append(sentence_type_ids)
+    return result_tokens, result_masks, result_token_ids
+
+
+def get_iter_dataset(sentence_tokens, sentence_labels, sentence_masks, sentence_type_ids, batch_size=BATCH_SIZE):
+    """
+    将预处理好的数据封装成可遍历的dataset_iter形式
+    :param sentence_tokens:
+    :param sentence_labels:
+    :param sentence_masks:
+    :param sentence_type_ids:
+    :param batch_size:
+    :return:
+    """
+    sentence_tokens_tensor = torch.LongTensor(sentence_tokens)
+    sentence_labels_tensor = torch.LongTensor(sentence_labels)
+    sentence_masks_tensor = torch.LongTensor(sentence_masks)
+    sentence_type_ids_tensor = torch.LongTensor(sentence_type_ids)
+    train_dataset = TensorDataset(sentence_tokens_tensor, sentence_labels_tensor, sentence_masks_tensor,
+                                  sentence_type_ids_tensor)
+    ids_sampler = RandomSampler(train_dataset)
+    train_iter = DataLoader(train_dataset, batch_size=batch_size, sampler=ids_sampler)
+    return train_iter
+
+
+def fine_tuning_model(net, loss_func, optimizer, train_iter, test_iter, num_epochs=EPOCHS, device=DEVICE):
+    """
+    fine_tuning模型
+    :param net: 预训练模型
+    :param loss_func: 损失函数
+    :param optimizer: 优化器
+    :param train_iter: 训练集
+    :param test_iter: 测试集
+    :param num_epochs: 训练epoch次数
+    :param device: 设备
+    :return: null
+    """
+    # 确定训练设备
+    if device is None:
+        device = list(net.parameters())[0].device
+    net.to(device)
+    # 开启训练模式
+    net.train()
+    # fine_tuning_model
+    for i in range(num_epochs):
+        totalNumber = 0
+        correctNumber = 0
+        totalLoss = 0
+        time_start = time.time()
+        for sentence_tokens, sentence_labels, sentence_masks, sentence_type_ids in train_iter:
+            prediction = net(sentence_tokens.to(device), sentence_masks.to(device), sentence_type_ids.to(device))
+            loss = loss_func(prediction, sentence_labels.to(device))
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            # 计算相关数据
+            totalNumber += sentence_tokens.shape[0]
+            totalLoss += loss.item()
+            correctNumber += (prediction.argmax(dim=1) == sentence_labels.to(device)).cpu().sum().item()
+        time_end = time.time()
+        print("epoch %d train loss is %f,train accuracy: %f,predict accuracy is %f,train time:%f" % (
+            i + 1, totalLoss / totalNumber, correctNumber / totalNumber,
+            eval_net(net, test_iter), time_end - time_start))
+
+
+def eval_net(net, test_iter, device=DEVICE):
+    """
+    使用测试集评价模型
+    :param net: fine_tuning完成的模型
+    :param test_iter: 测试集合
+    :param device: 运行设备
+    :return: 准确率
+    """
+    if device is None:
+        device = list(net.parameters())[0].device
+    net.eval()
+    totalNumber = 0
+    correctNumber = 0
+    for sentence_tokens, sentence_labels, sentence_masks, sentence_type_ids in test_iter:
+        prediction = net(sentence_tokens.to(device), sentence_masks.to(device), sentence_type_ids.to(device))
+        totalNumber += sentence_tokens.shape[0]
+        correctNumber += (prediction.argmax(dim=1) == sentence_labels.to(device)).cpu().sum().item()
+    return correctNumber / totalNumber
+
+
+# tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
+# net = BertForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=11)
+# loss_func = nn.CrossEntropyLoss()
