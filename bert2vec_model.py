@@ -150,7 +150,9 @@ def eval_net(net, test_iter, device=DEVICE):
         correctNumber += (prediction.argmax(dim=1) == sentence_labels.to(device)).cpu().sum().item()
     return correctNumber / totalNumber
 
-
+# docs, labels = load_label_data()
+# doc_flatten = [sentence for doc in docs for sentence in doc]
+# doc_labels_flatten = [sentence for doc in labels for sentence in doc]
 # tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
 # net = BertForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=11)
 # loss_func = nn.CrossEntropyLoss()
