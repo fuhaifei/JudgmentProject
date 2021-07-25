@@ -8,6 +8,7 @@ from preprocess import load_label_data
 
 # 哈工大中文bert模型,最高支持512长度句子
 MODEL_NAME = "hfl/chinese-bert-wwm-ext"
+FINE_TUNING_MODEL_PATH = "./files/model_file/fine_tuning_model.model"
 MAX_SEQ_LENGTH = 150
 
 # fine-tuning 的序列长度
@@ -40,7 +41,7 @@ def get_cls_vec(docs):
     return result
 
 
-def prepare_train_data(sentences, tokenizer, max_seq_length=MAX_SEQ_LENGTH):
+def prepare_train_data(sentences, tokenizer, max_seq_length=MAX_SEQ_LENGTH) -> object:
     """
     将输入句子转化为模型输入形式
     :param sentences: 输入段落
@@ -156,6 +157,44 @@ def eval_net(net, test_iter, device=DEVICE):
         totalNumber += sentence_tokens.shape[0]
         correctNumber += (prediction.argmax(dim=1) == sentence_labels.to(device)).cpu().sum().item()
     return correctNumber / totalNumber
+
+
+"""
+2. 模型使用相关函数
+"""
+
+
+def load_model(model_path=FINE_TUNING_MODEL_PATH):
+    net = torch.load(model_path)
+    tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
+    return net, tokenizer
+
+
+def predict_result(net, tokenizer, inputs, device=DEVICE):
+    """
+    预测结果
+    :param tokenizer: 分词器
+    :param net: fine tuning结果
+    :param inputs: 段落一维数组
+    :param device: 设备
+    :return: 预测结果一维数组
+    """
+    if device is None:
+        device = list(net.parameters())[0].device
+
+    input_tokens, input_masks, input_token_ids = prepare_train_data(inputs, tokenizer, max_seq_length=MAX_SEQ_LENGTH)
+    input_tokens_tensor = torch.LongTensor(input_tokens).to(DEVICE)
+    input_masks_tensor = torch.LongTensor(input_masks).to(DEVICE)
+    input_type_ids_tensor = torch.LongTensor(input_token_ids).to(DEVICE)
+
+    net.to(device)
+    net.eval()
+    # 预测结果
+    prediction = net(input_tokens_tensor, input_masks_tensor, input_type_ids_tensor).logits
+    result = prediction.argmax(dim=1).cpu().detach().numpy()
+    torch.cuda.empty_cache()
+    return result
+
 
 
 # # 初始化数据
