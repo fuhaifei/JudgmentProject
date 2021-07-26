@@ -11,6 +11,25 @@ net, tokenizer = load_model(FINE_TUNING_MODEL_PATH)
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './upload_files'
 
+PAGE = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form action="http://localhost:5000/upload_file" method="POST" enctype="multipart/form-data" >
+        <input type="file" name="file"  multiple="multiple"/>
+        <input type="submit" value="提交" />
+    </form>
+</body>
+</html>'''
+
+
+@app.route("/")
+def getPage():
+    return PAGE
+
 
 @app.route("/upload_file", methods=['POST'])
 def upload_file_and_predict():

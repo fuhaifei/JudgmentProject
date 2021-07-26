@@ -16,10 +16,11 @@
   2. 去除停用词（停用词文件cn_stopwords.txt)
 * doc2vec 抽取段落特征向量 (doc2vec_model.py)
 * bert模型抽取向量(bert2vec_model.py)
+* 使用 bert+fine tuning 改进模型效果
 
 ### 未完成
 
-* 尝试使用 bert+fine tuning 改进模型效果
+* 前端展示分类效果
 
 ## 2. 阶段成果
 
@@ -82,6 +83,14 @@ train_vec, test_vec, train_label, test_label = train_test_split(doc_vec_flatten,
 
 2. 不同机器模型中，分类效果较好的主要是SVM，极端随机森林，基于bert提取的准确率从能够达到0.87
 3. 两个集成学习方法出现了过拟合问题，可能原因是训练数据量不够，如果数据量足够，效果**可能优于**其他模型
+
+
+
+#### 方向二
+
+训练准确率能够达到90%以上
+
+![image-20210726101616980](README.assets/image-20210726101616980.png)
 
 #### 结论
 
